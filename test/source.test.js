@@ -72,6 +72,30 @@ test('source.normalize', function(t) {
         source.normalize({ Layer: [{ Datasource: { type: 'shape' } }] });
     }, /Missing required field/);
 
+
+    // Test a raster source with multiple layers
+    n = source.normalize({
+        id: 'tmsource://' + __dirname + '/fixtures-localraster',
+        Layer: [{
+            id: 'raster2',
+            fields: {},
+            Datasource: {
+                type: 'gdal',
+                file: __dirname + '/fixtures-localraster/raster2.tif'
+            }
+        }, {
+            id: 'raster1',
+            fields: {},
+            Datasource: {
+                type: 'gdal',
+                file: __dirname + '/fixtures-localraster/raster1.tif'
+            }
+        }]
+    });
+    t.deepEqual(n.Layer.length, 2, 'raster source contains two layers');
+    t.deepEqual(n.vector_layers.length, 1, 'raster source contains one vector_layers');
+    t.deepEqual(n.vector_layers[0].id, 'raster_local', 'raster source vector_layer is called raster_local');
+
     // @TODO check postgis auto srs extent generation ... without postgis.
 
     t.end();
@@ -222,11 +246,15 @@ test('local: saves source to disk', function(t) {
         // Normalize all this nonsense before following through with basepath
         // replacement for fixture comparison + creation.
         var yaml = require('js-yaml');
-        var ymldirname = yaml.dump(__dirname).trim().replace(/"/g,'');
+        var dirname = tm.join(__dirname);
+        var ymldirname = yaml.dump(dirname).trim().replace(/"/g,'');
+
+        console.log('dirname ' + dirname);
+        console.log('ymldirname ' + ymldirname);
 
         var projectdir = tm.parse(tmpid).dirname;
         var datayml = fs.readFileSync(projectdir + '/data.yml', 'utf8').replace(new RegExp(ymldirname,'g'),'BASEPATH');
-        var dataxml = fs.readFileSync(projectdir + '/data.xml', 'utf8').replace(new RegExp(__dirname,'g'),'BASEPATH');
+        var dataxml = fs.readFileSync(projectdir + '/data.xml', 'utf8').replace(new RegExp(dirname,'g'),'BASEPATH');
 
         if (UPDATE) {
             fs.writeFileSync(__dirname + '/expected/source-save-data.yml', datayml);
@@ -431,4 +459,3 @@ test('cleanup', function(t) {
         t.end();
     });
 });
-

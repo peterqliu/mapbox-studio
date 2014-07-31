@@ -20,8 +20,15 @@ $(document).ajaxComplete(function() {
     setTimeout(function() { callback(); }, 100);
 });
 
+tape('#settings-form', function(t) {
+    t.ok(!$('body').hasClass('changed'), 'body');
+    $('#settings-drawer').change();
+    t.ok($('body').hasClass('changed'), 'body.changed');
+    t.end();
+});
+
 tape('Setting maxzoom: sets maxzoom to higher value than 6 (tests logic preference for higher maxzoom...see #addlayer-shape test)', function(t) {
-    var maxzoomTarget = $('.js-settings-form #maxzoom');
+    var maxzoomTarget = $('#settings-drawer #maxzoom');
     maxzoomTarget.val(12);
     $('.js-save').submit();
     var maxzoom = maxzoomTarget.val();
@@ -41,7 +48,7 @@ tape('#addlayer-shape: adds new shapefile and checks input values', function(t) 
     $('#browsefile .col8').val(shpFile);
     $('#browsefile .col4').submit();
     onajax(function() {
-    	var maxzoomTarget = $('.js-settings-form #maxzoom');
+    	var maxzoomTarget = $('#settings-drawer #maxzoom');
     	var maxzoom = maxzoomTarget.val();
     	var projTarget = $('.js-metadata-projection');
 		var expectedValue = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over';
@@ -52,7 +59,7 @@ tape('#addlayer-shape: adds new shapefile and checks input values', function(t) 
 });
 
 tape('sets maxzoom', function(t) {
-    var maxzoomTarget = $('.js-settings-form #maxzoom');
+    var maxzoomTarget = $('#settings-drawer #maxzoom');
     maxzoomTarget.val(6);
     $('.js-save').submit();
     var maxzoom = maxzoomTarget.val();
@@ -152,6 +159,39 @@ var datatests = {
             'id': 'OGRGeoJSON',
             'properties-buffer-size': '8',
             'srs': '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+        }
+    },
+    'geotiff/sample.tif': {
+        filepath: '/geotiff/sample.tif',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/geotiff/sample.tif',
+            'Datasource-type': 'gdal',
+            'description': '',
+            'id': 'sample',
+            'properties-buffer-size': '0',
+            'srs': '+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
+        }
+    },
+    'geotiff/DC_rgb.tif': {
+        filepath: '/geotiff/DC_rgb.tif',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/geotiff/DC_rgb.tif',
+            'Datasource-type': 'gdal',
+            'description': '',
+            'id': 'DC_rgb',
+            'properties-buffer-size': '0',
+            'srs': '+proj=utm +zone=18 +datum=NAD83 +units=m +no_defs'
+        }
+    },
+    'vrt/sample.vrt': {
+        filepath: '/vrt/sample.vrt',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/vrt/sample.vrt',
+            'Datasource-type': 'gdal',
+            'description': '',
+            'id': 'sample',
+            'properties-buffer-size': '0',
+            'srs': '+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
         }
     },
     'shp/dc_bus_lines': {

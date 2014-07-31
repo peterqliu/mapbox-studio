@@ -38,16 +38,14 @@
 
 <div id='drawers' class='animate fill-dark dark col3 offcanvas-left animate pin-left z10 clip'>
 
-  <form id='settings-drawer' class='js-settings-form drawer col12 animate offcanvas-left'>
+  <form id='settings-drawer' class='drawer col12 animate offcanvas-left'>
     <div class='pin-top pad1 keyline-bottom'>
       <h3>Settings</h3>
       <a href='#' class='icon x pin-right pad1 quiet'></a>
     </div>
     <div class='pin-left top1 scroll-styled'>
       <fieldset class='clearfix pad1x pad2y keyline-bottom contain'>
-        <% if (source._tmp) { %>
-        <div class='z10 pin-top pin-bottom col12 pad1x fill-disable on-tmp'></div>
-        <% } %>
+        <div class='z10 pin-top pin-bottom col12 pad1x fill-disable on-tmp on-changed'></div>
         <section class='space-bottom1'>
           <div id='mapstatus-mapid' class='pad0y pad1x center truncate round-top space small animate fill-darken1'>
             <strong>Map ID</strong>
@@ -154,7 +152,7 @@
         <a href='#' class='js-addlayer short button col12 icon plus'>New layer</a>
       </div>
       <div class='col6 pad1 text-right contain'>
-        <div class='z10 pin-top pin-bottom inline fill-disable on-tmp'></div>
+        <div class='z10 pin-top pin-bottom inline fill-disable on-tmp on-changed'></div>
         <a href='#' class='js-newstyle quiet inline pad0 small col12 rcon next'>Create style from this source</a>
       </div>
     </div>
@@ -180,9 +178,10 @@
 <%
   _(revlayers).each(_(function(l) {
     var type = (l.Datasource && l.Datasource.type);
+    var vlayer = _(source.vector_layers).find(function(v) { return v.id === l.id; });
     if (this['layer' + type]) print(this['layer' + type](_({
         tm: tm,
-        fields: source.vector_layers.filter(function(v) { return v.id === l.id })[0].fields
+        fields: vlayer ? vlayer.fields : null
     }).extend(l)));
   }).bind(this));
 %>
@@ -221,9 +220,11 @@ templates.layerpostgis = <%= this.layerpostgis.source %>;
 templates.layersqlite = <%= this.layersqlite.source %>;
 templates.layercsv = <%= this.layercsv.source %>;
 templates.layerogr = <%= this.layerogr.source %>;
+templates.layergdal = <%= this.layergdal.source %>;
 templates.xraycolor = <%= this.xraycolor.source %>;
 templates.xraypopup = <%= this.xraypopup.source %>;
 templates.modalnewstylecheck = <%= this.modalnewstylecheck.source %>;
+templates.modalnewstyle = <%= this.modalnewstyle.source %>;
 
 var tm = {};
 tm.srs = <%= JSON.stringify(tm.srs) %>;
