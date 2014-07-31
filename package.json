@@ -19,7 +19,7 @@
     "passport-oauth": "1.0.x",
     "minimist": "0.1.x",
     "underscore": "1.4.x",
-    "tilejson": "0.7.0",
+    "tilejson": "https://github.com/mapbox/node-tilejson/tarball/node-v011",
     "mbtiles": "0.4.x",
     "mkdirp": "0.5.x",
     "dirty": "0.9.9",
