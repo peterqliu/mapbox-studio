@@ -319,7 +319,7 @@ window.Source = function(templates, cwd, tm, source, revlayers, examples) {
                 layer.nodata = metadata.raster.nodata;
                 layer.Datasource.nodata = metadata.raster.nodata;
             }
-
+            console.log("IN ADD LAYER!!!");
             //Add the new layer form and div
             $('#editor').prepend(templates['layer' + layer.Datasource.type](layer));
             $('#layers .js-layer-content').prepend(templates.layeritem(layer));
@@ -327,7 +327,7 @@ window.Source = function(templates, cwd, tm, source, revlayers, examples) {
             //Add new layer to the project's layers array
             layers[layer.id] = Layer(layer.id, layer.Datasource);
             orderLayers();
-
+            console.log(layers);
             //set maxzoom, if needed
             var maxzoomTarget = $('.max');
             if (maxzoomTarget.val() < metadata.maxzoom) maxzoomTarget.val(metadata.maxzoom);

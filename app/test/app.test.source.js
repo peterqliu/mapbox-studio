@@ -21,131 +21,6 @@ function hasModal(selector) {
     return $('#modal-content ' + selector).size() > 0;
 }
 
-var datatests = {
-    'csv/bbl_current_csv': {
-        filepath: '/csv/bbl_current_csv.csv',
-        expected: {
-            'Datasource-file': window.testParams.dataPath + '/csv/bbl_current_csv.csv',
-            'Datasource-type': 'csv',
-            'description': '',
-            'id': 'bbl_current_csv',
-            'properties-buffer-size': '8',
-            'srs': '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-        }
-    },
-    'geojson/DC_polygon.geo.json': {
-        filepath: '/geojson/DC_polygon.geo.json',
-        expected: {
-            'Datasource-file': window.testParams.dataPath + '/geojson/DC_polygon.geo.json',
-            'Datasource-layer': 'OGRGeoJSON',
-            'Datasource-type': 'ogr',
-            'description': '',
-            'id': 'OGRGeoJSON',
-            'properties-buffer-size': '8',
-            'srs': '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-        }
-    },
-    'geojson/places.geo.json': {
-        filepath: '/geojson/places.geo.json',
-        expected: {
-            'Datasource-file': window.testParams.dataPath + '/geojson/places.geo.json',
-            'Datasource-layer': 'OGRGeoJSON',
-            'Datasource-type': 'ogr',
-            'description': '',
-            'id': 'OGRGeoJSON',
-            'properties-buffer-size': '8',
-            'srs': '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
-        }
-    },
-    'geotiff/sample.tif': {
-        filepath: '/geotiff/sample.tif',
-        expected: {
-            'Datasource-file': window.testParams.dataPath + '/geotiff/sample.tif',
-            'Datasource-type': 'gdal',
-            'description': '',
-            'id': 'sample',
-            'properties-buffer-size': '0',
-            'srs': '+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        }
-    },
-    'geotiff/DC_rgb.tif': {
-        filepath: '/geotiff/DC_rgb.tif',
-        expected: {
-            'Datasource-file': window.testParams.dataPath + '/geotiff/DC_rgb.tif',
-            'Datasource-type': 'gdal',
-            'description': '',
-            'id': 'DC_rgb',
-            'properties-buffer-size': '0',
-            'srs': '+proj=utm +zone=18 +datum=NAD83 +units=m +no_defs'
-        }
-    },
-    'vrt/sample.vrt': {
-        filepath: '/vrt/sample.vrt',
-        expected: {
-            'Datasource-file': window.testParams.dataPath + '/vrt/sample.vrt',
-            'Datasource-type': 'gdal',
-            'description': '',
-            'id': 'sample',
-            'properties-buffer-size': '0',
-            'srs': '+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-        }
-    },
-    'shp/dc_bus_lines': {
-        filepath: '/shp/dc_bus_lines/DCGIS_BusLineLn.shp',
-        expected: {
-            'Datasource-file': window.testParams.dataPath + '/shp/dc_bus_lines/DCGIS_BusLineLn.shp',
-            'Datasource-type': 'shape',
-            'description': '',
-            'id': 'DCGIS_BusLineLn',
-            'properties-buffer-size': '8',
-            'srs': /datum=NAD83/
-        }
-    },
-    'shp/chi_bike_routes': {
-        filepath: '/shp/chi_bike_routes/chi_bike_routes.shp',
-        expected: {
-            'Datasource-file': window.testParams.dataPath + '/shp/chi_bike_routes/chi_bike_routes.shp',
-            'Datasource-type': 'shape',
-            'description': '',
-            'id': 'chi_bike_routes',
-            'properties-buffer-size': '8',
-            'srs': /ellps=GRS80/
-        }
-    },
-};
-
-for (var name in datatests) (function(name, info) {
-    tape('data test: ' + name, function(t) {
-        if (!window.testParams || !window.testParams.dataPath) {
-            console.warn('WARNING: skipping test, window.testParams.dataPath required');
-            return t.end();
-        }
-        $('.js-addlayer').click();
-        t.equal($('#addlayer').size(), 1, 'shows #addlayer modal');
-        $('#addlayer input[name=Datasource-file]').val(window.testParams.dataPath + info.filepath);
-        $('#addlayer').submit();
-        onajax(function() {
-            t.equal($('#layers-' + info.expected.id).size(), 1, 'adds #layers-' + info.expected.id + ' form');
-            var values = _($('#layers-' + info.expected.id).serializeArray()).reduce(function(memo, field) {
-                memo[field.name] = field.value;
-                return memo;
-            }, {});
-            for (var k in info.expected) {
-                if (info.expected[k] instanceof RegExp) {
-                    t.ok(info.expected[k].test(values[k]), 'sets form value for ' + k);
-                } else {
-                    t.equal(values[k], info.expected[k], 'sets form value for ' + k);
-                }
-            }
-            $('#del-' + info.expected.id).click();
-            t.ok(hasModal('#confirm'), 'shows confirm modal');
-            $('#confirm a.js-confirm').click();
-            t.equal($('#layers-' + info.expected.id).size(), 0, 'removes #layers-' + info.expected.id + ' form');
-            t.end();
-        });
-    });
-})(name, datatests[name]);
-
 tape('#settings-form', function(t) {
     t.ok(!$('body').hasClass('changed'), 'body');
     $('#settings-drawer').change();
@@ -264,6 +139,133 @@ tape('bookmarks: removes', function(t) {
     t.equal($('#bookmark-list').children().length, 0, 'bookmark not in list');
     t.end();
 });
+
+var datatests = {
+    'csv/bbl_current_csv': {
+        filepath: '/csv/bbl_current_csv.csv',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/csv/bbl_current_csv.csv',
+            'Datasource-type': 'csv',
+            'description': '',
+            'id': 'bbl_current_csv',
+            'properties-buffer-size': '8',
+            'srs': '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+        }
+    },
+    'geojson/DC_polygon.geo.json': {
+        filepath: '/geojson/DC_polygon.geo.json',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/geojson/DC_polygon.geo.json',
+            'Datasource-layer': 'OGRGeoJSON',
+            'Datasource-type': 'ogr',
+            'description': '',
+            'id': 'OGRGeoJSON',
+            'properties-buffer-size': '8',
+            'srs': '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+        }
+    },
+    'geojson/places.geo.json': {
+        filepath: '/geojson/places.geo.json',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/geojson/places.geo.json',
+            'Datasource-layer': 'OGRGeoJSON',
+            'Datasource-type': 'ogr',
+            'description': '',
+            'id': 'OGRGeoJSON',
+            'properties-buffer-size': '8',
+            'srs': '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
+        }
+    },
+    'geotiff/sample.tif': {
+        filepath: '/geotiff/sample.tif',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/geotiff/sample.tif',
+            'Datasource-type': 'gdal',
+            'description': '',
+            'id': 'sample',
+            'properties-buffer-size': '0',
+            'srs': '+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
+        }
+    },
+    'geotiff/DC_rgb.tif': {
+        filepath: '/geotiff/DC_rgb.tif',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/geotiff/DC_rgb.tif',
+            'Datasource-type': 'gdal',
+            'description': '',
+            'id': 'DC_rgb',
+            'properties-buffer-size': '0',
+            'srs': '+proj=utm +zone=18 +datum=NAD83 +units=m +no_defs'
+        }
+    },
+    'vrt/sample.vrt': {
+        filepath: '/vrt/sample.vrt',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/vrt/sample.vrt',
+            'Datasource-type': 'gdal',
+            'description': '',
+            'id': 'sample',
+            'properties-buffer-size': '0',
+            'srs': '+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
+        }
+    },
+    'shp/dc_bus_lines': {
+        filepath: '/shp/dc_bus_lines/DCGIS_BusLineLn.shp',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/shp/dc_bus_lines/DCGIS_BusLineLn.shp',
+            'Datasource-type': 'shape',
+            'description': '',
+            'id': 'DCGIS_BusLineLn',
+            'properties-buffer-size': '8',
+            'srs': /datum=NAD83/
+        }
+    },
+    'shp/chi_bike_routes': {
+        filepath: '/shp/chi_bike_routes/chi_bike_routes.shp',
+        expected: {
+            'Datasource-file': window.testParams.dataPath + '/shp/chi_bike_routes/chi_bike_routes.shp',
+            'Datasource-type': 'shape',
+            'description': '',
+            'id': 'chi_bike_routes',
+            'properties-buffer-size': '8',
+            'srs': /ellps=GRS80/
+        }
+    },
+};
+
+for (var name in datatests) (function(name, info) {
+    tape('data test: ' + name, function(t) {
+        if (!window.testParams || !window.testParams.dataPath) {
+            console.warn('WARNING: skipping test, window.testParams.dataPath required');
+            return t.end();
+        }
+        $('.js-addlayer').click();
+        t.equal($('#addlayer').size(), 1, 'shows #addlayer modal');
+        $('#addlayer input[name=Datasource-file]').val(window.testParams.dataPath + info.filepath);
+        console.log(info.filepath);
+        console.log(window.testParams.dataPath + info.filepath);
+        $('#addlayer').submit();
+        onajax(function() {
+            t.equal($('#layers-' + info.expected.id).size(), 1, 'adds #layers-' + info.expected.id + ' form');
+            var values = _($('#layers-' + info.expected.id).serializeArray()).reduce(function(memo, field) {
+                memo[field.name] = field.value;
+                return memo;
+            }, {});
+            for (var k in info.expected) {
+                if (info.expected[k] instanceof RegExp) {
+                    t.ok(info.expected[k].test(values[k]), 'sets form value for ' + k);
+                } else {
+                    t.equal(values[k], info.expected[k], 'sets form value for ' + k);
+                }
+            }
+            $('#del-' + info.expected.id).click();
+            t.ok(hasModal('#confirm'), 'shows confirm modal');
+            $('#confirm a.js-confirm').click();
+            t.equal($('#layers-' + info.expected.id).size(), 0, 'removes #layers-' + info.expected.id + ' form');
+            t.end();
+        });
+    });
+})(name, datatests[name]);
 
 tape('#raster and nonraster mix error', function(t) {
     if (!window.testParams || !window.testParams.dataPath) {
