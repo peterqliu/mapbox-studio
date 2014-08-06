@@ -21,125 +21,6 @@ function hasModal(selector) {
     return $('#modal-content ' + selector).size() > 0;
 }
 
-tape('#settings-form', function(t) {
-    t.ok(!$('body').hasClass('changed'), 'body');
-    $('#settings-drawer').change();
-    t.ok($('body').hasClass('changed'), 'body.changed');
-    t.end();
-});
-
-tape('.js-newstyle => newstyle modal', function(t) {
-    t.equal(hasModal('#newstyle'), false, 'no newstyle modal');
-    $('.js-newstyle').click();
-    t.equal(hasModal('#newstyle'), true, 'shows newstyle modal');
-    t.end();
-});
-
-tape('.js-sourcenewstyle => sourcenewstyle modal', function(t) {
-    t.equal(hasModal('#sourcenewstyle'), false, 'no sourcenewstyle modal');
-    $('.js-sourcenewstyle').click();
-    t.equal(hasModal('#sourcenewstyle'), true, 'shows sourcenewstyle modal');
-    t.end();
-});
-
-tape('Setting maxzoom: sets maxzoom to higher value than 6 (tests logic preference for higher maxzoom...see #addlayer-shape test)', function(t) {
-    var maxzoomTarget = $('#settings-drawer #maxzoom');
-    maxzoomTarget.val(12);
-    $('.js-save').submit();
-    var maxzoom = maxzoomTarget.val();
-    t.equal(maxzoom, '12');
-    t.end();
-});
-
-tape('#addlayer-shape: adds new shapefile and checks input values', function(t) {
-    //Browse for file and add new shape layer
-    $('.js-addlayer').click();
-    $('.js-browsefile').click();
-    var cwd = $('div.cwd').text();
-    //This RegEx can probably be cleaned up, but it works for now
-    cwd = cwd.replace(/\s*$/,"");
-    var array = cwd.split(/[\s,]+/);
-    var shpFile = array[1] + '/test/fixtures-localsource/10m-900913-bounding-box.shp';
-    $('#browsefile .col8').val(shpFile);
-    $('#browsefile .col4').submit();
-    onajax(function() {
-    	var maxzoomTarget = $('#settings-drawer #maxzoom');
-    	var maxzoom = maxzoomTarget.val();
-    	var projTarget = $('.js-metadata-projection');
-		var expectedValue = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over';
-		t.equal(expectedValue, projTarget.val());
-    	t.equal(maxzoom, '12');
-    	t.end();
-    });
-});
-
-tape('sets maxzoom', function(t) {
-    var maxzoomTarget = $('#settings-drawer #maxzoom');
-    maxzoomTarget.val(6);
-    $('.js-save').submit();
-    var maxzoom = maxzoomTarget.val();
-    t.equal(maxzoom, '6');
-    t.end();
-});
-
-tape('tests the projection input field is populated with the expected projection', function(t) {
-	var projTarget = $('.js-metadata-projection');
-	var expectedValue = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over';
-	t.deepEqual(expectedValue, projTarget.val());
-    t.end();
-});
-
-tape('#updatename-shape: updates the layer name and checks that input values and new layer modal are set', function(t) {
-    //Set description of old layer
-    $('.js-layer #10m-900913-bounding-box').click();
-    $('#10m-900913-bounding-box-buffer-size').val('24');
-    var expectedBuffer = $('#10m-900913-bounding-box-buffer-size').val();
-
-    //Update layer name
-    $('#updatename-10m-900913-bounding-box').click();
-    $('#newLayername').val('hey');
-    $('#updatename').submit();
-
-    var currentUrl = window.location.toString();
-    var newBufferTarget = $('#hey-buffer-size-val');
-
-    t.equal(currentUrl.slice(-10),'layers-hey');
-    t.equal(expectedBuffer, newBufferTarget.text());
-    t.end();
-});
-
-tape('bookmarks: saves', function(t) {
-    // Ensure nothing in localstorage
-    var bookmarkId = editor.model.get('id') + '.bookmarks';
-    localStorage.removeItem(bookmarkId);
-
-    // Add a bookmark
-    $('#bookmark input[type=submit]').click();
-
-    // Check that it is in localstorage
-    var bookmarks = localStorage.getItem(bookmarkId);
-    try { bookmarks = JSON.parse(bookmarks); }
-    catch(err) { t.ifError(err); }
-    t.equal(Object.keys(bookmarks).length, 1, 'bookmark was saved');
-
-    // Check that the UI is populated correctly
-    t.equal($('#bookmark-list').children().length, 1, 'bookmark appears in list');
-    t.end();
-});
-
-tape('bookmarks: removes', function(t) {
-    // Delete a bookmark
-    $('.js-del-bookmark').click();
-
-    // Is removed from localStorage
-    var bookmarkId = editor.model.get('id') + '.bookmarks';
-    t.equal(localStorage.getItem(bookmarkId), '{}', 'bookmark was removed');
-
-    // Is removed from UI
-    t.equal($('#bookmark-list').children().length, 0, 'bookmark not in list');
-    t.end();
-});
-
 var datatests = {
     'csv/bbl_current_csv': {
         filepath: '/csv/bbl_current_csv.csv',
@@ -264,6 +145,143 @@ for (var name in datatests) (function(name, info) {
         });
     });
 })(name, datatests[name]);
+
+tape('#settings-form', function(t) {
+    t.ok(!$('body').hasClass('changed'), 'body');
+    $('#settings-drawer').change();
+    t.ok($('body').hasClass('changed'), 'body.changed');
+    t.end();
+});
+
+tape('.js-newstyle => newstyle modal', function(t) {
+    t.equal(hasModal('#newstyle'), false, 'no newstyle modal');
+    $('.js-newstyle').click();
+    t.equal(hasModal('#newstyle'), true, 'shows newstyle modal');
+    t.end();
+});
+
+tape('.js-sourcenewstyle => sourcenewstyle modal', function(t) {
+    t.equal(hasModal('#sourcenewstyle'), false, 'no sourcenewstyle modal');
+    $('.js-sourcenewstyle').click();
+    t.equal(hasModal('#sourcenewstyle'), true, 'shows sourcenewstyle modal');
+    t.end();
+});
+
+tape('Setting maxzoom: sets maxzoom to higher value than 6 (tests logic preference for higher maxzoom...see #addlayer-shape test)', function(t) {
+    var maxzoomTarget = $('#settings-drawer #maxzoom');
+    maxzoomTarget.val(12);
+    $('.js-save').submit();
+    var maxzoom = maxzoomTarget.val();
+    t.equal(maxzoom, '12');
+    t.end();
+});
+
+tape('#addlayer-shape: adds new shapefile and checks input values', function(t) {
+    //Browse for file and add new shape layer
+    $('.js-addlayer').click();
+    $('.js-browsefile').click();
+    var cwd = $('div.cwd').text();
+    //This RegEx can probably be cleaned up, but it works for now
+    cwd = cwd.replace(/\s*$/,"");
+    var array = cwd.split(/[\s,]+/);
+    var shpFile = array[1] + '/test/fixtures-localsource/10m-900913-bounding-box.shp';
+    $('#browsefile .col8').val(shpFile);
+    $('#browsefile .col4').submit();
+    onajax(function() {
+    	var maxzoomTarget = $('#settings-drawer #maxzoom');
+    	var maxzoom = maxzoomTarget.val();
+    	var projTarget = $('.js-metadata-projection');
+		var expectedValue = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over';
+		t.equal(expectedValue, projTarget.val());
+    	t.equal(maxzoom, '12');
+    	t.end();
+    });
+});
+
+tape('sets maxzoom', function(t) {
+    var maxzoomTarget = $('#settings-drawer #maxzoom');
+    maxzoomTarget.val(6);
+    $('.js-save').submit();
+    var maxzoom = maxzoomTarget.val();
+    t.equal(maxzoom, '6');
+    t.end();
+});
+
+tape('tests the projection input field is populated with the expected projection', function(t) {
+	var projTarget = $('.js-metadata-projection');
+	var expectedValue = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over';
+	t.deepEqual(expectedValue, projTarget.val());
+    t.end();
+});
+
+tape('#updatename-shape: updates the layer name and checks that input values and new layer modal are set', function(t) {
+    //Set description of old layer
+    $('.js-layer #10m-900913-bounding-box').click();
+    $('#10m-900913-bounding-box-buffer-size').val('24');
+    var expectedBuffer = $('#10m-900913-bounding-box-buffer-size').val();
+
+    //Update layer name
+    $('#updatename-10m-900913-bounding-box').click();
+    $('#newLayername').val('hey');
+    $('#updatename').submit();
+
+    var currentUrl = window.location.toString();
+    var newBufferTarget = $('#hey-buffer-size-val');
+
+    t.equal(currentUrl.slice(-10),'layers-hey');
+    t.equal(expectedBuffer, newBufferTarget.text());
+    t.end();
+});
+
+tape('bookmarks: saves', function(t) {
+    // Ensure nothing in localstorage
+    var bookmarkId = editor.model.get('id') + '.bookmarks';
+    localStorage.removeItem(bookmarkId);
+
+    // Add a bookmark
+    $('#bookmark input[type=submit]').click();
+
+    // Check that it is in localstorage
+    var bookmarks = localStorage.getItem(bookmarkId);
+    try { bookmarks = JSON.parse(bookmarks); }
+    catch(err) { t.ifError(err); }
+    t.equal(Object.keys(bookmarks).length, 1, 'bookmark was saved');
+
+    // Check that the UI is populated correctly
+    t.equal($('#bookmark-list').children().length, 1, 'bookmark appears in list');
+    t.end();
+});
+
+tape('bookmarks: removes', function(t) {
+    // Delete a bookmark
+    $('.js-del-bookmark').click();
+
+    // Is removed from localStorage
+    var bookmarkId = editor.model.get('id') + '.bookmarks';
+    t.equal(localStorage.getItem(bookmarkId), '{}', 'bookmark was removed');
+
+    // Is removed from UI
+    t.equal($('#bookmark-list').children().length, 0, 'bookmark not in list');
+    t.end();
+});
+
+tape('#raster and nonraster mix error', function(t) {
+    if (!window.testParams || !window.testParams.dataPath) {
+        console.warn('WARNING: skipping test, window.testParams.dataPath required');
+        return t.end();
+    }
+    $('.js-addlayer').click();
+    t.equal($('#addlayer').size(), 1, 'shows #addlayer modal');
+    $('#addlayer input[name=Datasource-file]').val(window.testParams.dataPath + 'geotiff/sample.tif');
+    $('#addlayer').submit();
+    $('#addlayer input[name=Datasource-file]').val(window.testParams.dataPath + 'shp/dc_bus_lines');
+    $('#addlayer').submit();
+    onajax(function() {
+        t.ok(hasModal('#error'), 'shows error modal');
+        $('#error a.js-close').click();
+        t.end();
+    });
+});
 
 tape('keybindings', function(t) {
     window.location.hash = '#';
